@@ -1,0 +1,6 @@
+ID;fullName;email;role;department;location;manager_ID;costCenter;officeTargetDays
+EMP1001;Ravi Kumar Sharma;emp.ravi@company.com;Senior SAP Consultant;SAP BTP & S/4HANA Practice;Hyderabad, IN;EMP2001;CC-HYD-101;3
+EMP1002;Priya Nair;priya.nair@company.com;SAPUI5 Developer;SAP BTP & S/4HANA Practice;Hyderabad, IN;EMP2001;CC-HYD-101;3
+EMP1003;Karthik Reddy;karthik.reddy@company.com;ABAP on HANA Specialist;SAP BTP & S/4HANA Practice;Hyderabad, IN;EMP2001;CC-HYD-101;3
+EMP2001;Ananya Deshmukh;mgr.ananya@company.com;Delivery Project Manager;SAP BTP & S/4HANA Practice;Hyderabad, IN;EMP3001;CC-HYD-100;3
+EMP3001;Vikramaditya Rao;hr.vikram@company.com;HR & Payroll Lead;People & Operations;Hyderabad, IN;;CC-HYD-001;3
