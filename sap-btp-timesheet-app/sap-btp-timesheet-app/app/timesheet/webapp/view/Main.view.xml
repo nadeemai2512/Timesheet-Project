@@ -1,555 +1,859 @@
+
 <mvc:View
-  controllerName="com.company.timesheet.controller.Main"
-  xmlns:mvc="sap.ui.core.mvc"
-  xmlns="sap.m"
-  xmlns:core="sap.ui.core"
-  xmlns:l="sap.ui.layout"
-  xmlns:f="sap.f"
-  xmlns:tnt="sap.tnt"
-  xmlns:viz="sap.viz.ui5.controls"
-  xmlns:viz.data="sap.viz.ui5.data"
-  xmlns:viz.feeds="sap.viz.ui5.feeds">
+    controllerName="com.company.timesheet.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout"
+    xmlns:f="sap.f"
+    xmlns:tnt="sap.tnt"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds">
 
-  <Page id="mainPage" showHeader="true" enableScrolling="true">
-    <customHeader>
-      <tnt:ToolHeader>
-        <core:Icon src="sap-icon://timesheet" size="1.4rem" color="#0070f2" class="sapUiSmallMarginBegin" />
-        <Title text="SAP BTP Unified Timesheet &amp; Leave Portal" level="H4" />
-        <ToolbarSpacer />
-        <Label text="Active Persona / XSUAA Role:" design="Bold" class="sapUiTinyMarginEnd" />
-        <Select selectedKey="{vm>/selectedPersona}" change=".onPersonaChange" width="220px">
-          <core:Item key="Employee" text="Employee (Ravi Sharma)" />
-          <core:Item key="ProjectManager" text="Project Manager (Ananya)" />
-          <core:Item key="HRAdmin" text="HR / Payroll Admin (Vikram)" />
-        </Select>
-      </tnt:ToolHeader>
-    </customHeader>
+    <Page
+        id="mainPage"
+        showHeader="false"
+        enableScrolling="true"
+        class="timesheetPage">
 
-    <content>
-      <!-- Top Employee Context & KPI Strip -->
-      <VBox class="sapUiSmallMargin">
-        <OverflowToolbar class="sapUiTinyMarginBottom">
-          <Avatar initials="RS" displaySize="S" backgroundColor="Accent6" />
-          <VBox class="sapUiTinyMarginBegin">
-            <Title text="Ravi Kumar Sharma (EMP1001)" level="H5" />
-            <Text text="Senior SAP Consultant • Hyderabad, IN • Reporting Manager: Ananya Deshmukh" />
-          </VBox>
-          <ToolbarSpacer />
-          <ObjectStatus
-            title="Timesheet Status"
-            text="{vm>/header/status}"
-            state="{= ${vm>/header/status} === 'POSTED_CATS' || ${vm>/header/status} === 'APPROVED' ? 'Success' : (${vm>/header/status} === 'REJECTED' ? 'Error' : (${vm>/header/status} === 'SUBMITTED' ? 'Warning' : 'Information')) }" />
-          <ObjectStatus
-            visible="{= !!${vm>/header/catsDocumentId} }"
-            title="S/4HANA CATS Ref"
-            text="{vm>/header/catsDocumentId}"
-            state="Success"
-            class="sapUiSmallMarginBegin" />
-        </OverflowToolbar>
+        <customHeader>
+            <tnt:ToolHeader id="_IDGenToolHeader" class="mainToolHeader">
+                <core:Icon id="_IDGenIcon"
+                    src="sap-icon://timesheet"
+                    size="1.5rem"
+                    color="#ffffff"
+                    class="sapUiSmallMarginBegin"/>
 
-        <!-- KPI Summary Cards -->
-        <l:Grid defaultSpan="XL2 L2 M4 S6" hSpacing="1" vSpacing="1" class="sapUiTinyMarginBottom">
-          <VBox class="kpiTileBox">
-            <Label text="Weekly Logged Hours" />
-            <ObjectNumber number="{vm>/header/totalHours}" unit="hrs" emphasized="true" state="Information" />
-            <Text text="Target: 40.0 hrs (or Leave/Holiday)" />
-          </VBox>
-          <VBox class="kpiTileBox">
-            <Label text="Billable vs Non-Billable" />
-            <ObjectNumber number="{vm>/header/billableHours}" unit="h Billable" state="Success" />
-            <Text text="Internal/Bench: {vm>/header/nonBillableHours} hrs" />
-          </VBox>
-          <VBox class="kpiTileBox">
-            <Label text="Overtime Logged" />
-            <ObjectNumber number="{vm>/header/overtimeHours}" unit="hrs" state="{= ${vm>/header/overtimeHours} > 0 ? 'Warning' : 'None' }" />
-            <Text text="Remarks mandatory &gt; 8h/day" />
-          </VBox>
-          <VBox class="kpiTileBox">
-            <Label text="In-Office Attendance" />
-            <ObjectNumber
-              number="{vm>/compliance/officeDaysLogged} / {vm>/compliance/officeTargetDays}"
-              unit="days"
-              state="{= ${vm>/compliance/officeDaysLogged} >= ${vm>/compliance/officeTargetDays} ? 'Success' : 'Warning' }" />
-            <Text text="Hybrid Policy: Min 3 days/wk" />
-          </VBox>
-          <VBox class="kpiTileBox">
-            <Label text="Privilege Leave Balance" />
-            <ObjectNumber number="{vm>/leaveBalance/privilegeLeave}" unit="days" state="Success" />
-            <Text text="CL: {vm>/leaveBalance/casualLeave}d | SL: {vm>/leaveBalance/sickLeave}d" />
-          </VBox>
-          <VBox class="kpiTileBox">
-            <Label text="Cutoff &amp; Lock Status" />
-            <ObjectStatus
-              text="{= ${vm>/compliance/isAutoLocked} ? 'LOCKED (&gt;15 Days / Posted)' : 'OPEN (Cutoff: Fri 6 PM)' }"
-              state="{= ${vm>/compliance/isAutoLocked} ? 'Error' : 'Success' }" />
-            <Text text="Synced with SuccessFactors" />
-          </VBox>
-        </l:Grid>
+                <Title id="_IDGenTitle"
+                    text="Unified Timesheet &amp; Leave Portal"
+                    level="H4"
+                    class="headerTitle"/>
 
-        <!-- Rejection Banner if Rejected -->
-        <MessageStrip
-          visible="{= ${vm>/header/status} === 'REJECTED' }"
-          text="Timesheet Rejected by Manager: {vm>/header/rejectionReason}. Please update hours/remarks and resubmit."
-          type="Error"
-          showIcon="true"
-          class="sapUiSmallMarginBottom" />
+                <ToolbarSpacer id="_IDGenToolbarSpacer"/>
 
-        <!-- Main IconTabBar covering Work, Leave, Approvals & Analytics -->
-        <IconTabBar id="mainTabBar" select=".onTabSelect" expandable="false" class="sapUiResponsiveContentPadding">
-          <items>
-            <!-- =========================================================== -->
-            <!-- TAB 1: WEEKLY TIMESHEET ENTRY (FR-01 & FR-02)               -->
-            <!-- =========================================================== -->
-            <IconTabFilter key="timesheet" icon="sap-icon://calendar" text="1. Weekly Timesheet (Work)">
-              <Toolbar class="sapUiTinyMarginBottom">
-                <Button icon="sap-icon://navigation-left-arrow" tooltip="Previous Week" press=".onPrevWeek" />
-                <Title text="Week: {vm>/weekLabel}" level="H5" class="sapUiTinyMarginBeginEnd" />
-                <Button icon="sap-icon://navigation-right-arrow" tooltip="Next Week" press=".onNextWeek" />
-                <ToolbarSpacer />
-                <Button
-                  text="Copy Previous Week"
-                  icon="sap-icon://copy"
-                  type="Transparent"
-                  enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
-                  press=".onCopyPreviousWeek" />
-                <Button
-                  text="+ Add Project Row"
-                  icon="sap-icon://add"
-                  type="Transparent"
-                  enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
-                  press=".onOpenAddRowDialog" />
-                <Button
-                  text="Save Draft"
-                  icon="sap-icon://save"
-                  type="Default"
-                  enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
-                  press=".onSaveDraft" />
-                <Button
-                  text="Submit for Approval"
-                  icon="sap-icon://paper-plane"
-                  type="Emphasized"
-                  enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
-                  press=".onSubmitTimesheet" />
-              </Toolbar>
+                <ObjectStatus id="_IDGenObjectStatus1"
+                    text="SAP BTP"
+                    state="Success"
+                    icon="sap-icon://cloud"
+                    class="headerEnvironment"/>
 
-              <!-- Day Status Banner (Shows Holidays & Approved Leaves for the selected week) -->
-              <HBox wrap="Wrap" class="sapUiTinyMarginBottom" items="{vm>/daysMeta}">
-                <VBox class="sapUiTinyMarginEnd sapUiTinyMarginBottom kpiTileBox" width="175px">
-                  <HBox justifyContent="SpaceBetween">
-                    <Label text="{vm>dayName} ({vm>shortDate})" design="Bold" />
-                    <ObjectStatus text="{vm>dayTypeLabel}" state="{vm>dayState}" />
-                  </HBox>
-                  <Text text="{vm>note}" wrapping="true" />
+                <ToolbarSeparator id="_IDGenToolbarSeparator"/>
+
+                <Label id="_IDGenLabel"
+                    text="Active Role"
+                    class="headerRoleLabel"/>
+
+                <Select
+                    id="personaSelect"
+                    selectedKey="{vm>/selectedPersona}"
+                    change=".onPersonaChange"
+                    width="205px"
+                    class="personaSelect">
+                    <core:Item id="_IDGenItem" key="Employee" text="Employee (Ravi Sharma)"/>
+                    <core:Item id="_IDGenItem1" key="ProjectManager" text="Project Manager (Ananya)"/>
+                    <core:Item id="_IDGenItem2" key="HRAdmin" text="HR / Payroll Admin (Vikram)"/>
+                </Select>
+
+                <Avatar id="_IDGenAvatar"
+                    initials="RS"
+                    displaySize="XS"
+                    backgroundColor="Accent6"
+                    class="sapUiSmallMarginBeginEnd"/>
+            </tnt:ToolHeader>
+        </customHeader>
+
+        <content>
+            <VBox id="_IDGenVBox" class="dashboardContainer">
+
+                <!-- PAGE INTRODUCTION -->
+                <VBox id="_IDGenVBox1" class="pageIntroduction">
+                    <HBox id="_IDGenHBox"
+                        alignItems="Center"
+                        justifyContent="SpaceBetween"
+                        wrap="Wrap">
+
+                        <VBox id="_IDGenVBox2">
+                            <Title id="_IDGenTitle1"
+                                text="Timesheet Dashboard"
+                                level="H2"
+                                class="pageMainTitle"/>
+                            <Text id="_IDGenText"
+                                text="Manage work hours, leave requests, approvals and workforce compliance."
+                                class="pageSubtitle"/>
+                        </VBox>
+
+                        <ObjectStatus id="_IDGenObjectStatus2"
+                            text="{vm>/header/status}"
+                            state="{= ${vm>/header/status} === 'APPROVED' || ${vm>/header/status} === 'POSTED_CATS' ? 'Success' : (${vm>/header/status} === 'REJECTED' ? 'Error' : 'Warning') }"
+                            icon="sap-icon://status-in-process"
+                            class="pageStatus"/>
+                    </HBox>
                 </VBox>
-              </HBox>
 
-              <!-- Weekly Calendar Matrix Table (Monday - Sunday) -->
-              <Table
-                id="weeklyGridTable"
-                items="{vm>/gridRows}"
-                mode="None"
-                growing="false"
-                sticky="ColumnHeaders">
-                <columns>
-                  <Column width="230px">
-                    <Text text="Assigned Project / WBS" />
-                  </Column>
-                  <Column width="120px" minScreenWidth="Tablet" demandPopin="true">
-                    <Text text="Task Category" />
-                  </Column>
-                  <Column width="115px" hAlign="Center">
-                    <Text text="Mon ({vm>/daysMeta/0/shortDate})" />
-                  </Column>
-                  <Column width="115px" hAlign="Center">
-                    <Text text="Tue ({vm>/daysMeta/1/shortDate})" />
-                  </Column>
-                  <Column width="115px" hAlign="Center">
-                    <Text text="Wed ({vm>/daysMeta/2/shortDate})" />
-                  </Column>
-                  <Column width="115px" hAlign="Center">
-                    <Text text="Thu ({vm>/daysMeta/3/shortDate})" />
-                  </Column>
-                  <Column width="115px" hAlign="Center">
-                    <Text text="Fri ({vm>/daysMeta/4/shortDate})" />
-                  </Column>
-                  <Column width="90px" hAlign="Center" minScreenWidth="Desktop" demandPopin="true">
-                    <Text text="Sat / Sun" />
-                  </Column>
-                  <Column width="160px" minScreenWidth="Tablet" demandPopin="true">
-                    <Text text="Work Remarks (OT Req.)" />
-                  </Column>
-                  <Column width="80px" hAlign="End">
-                    <Text text="Row Hrs" />
-                  </Column>
-                </columns>
-                <items>
-                  <ColumnListItem>
-                    <cells>
-                      <!-- Project & WBS Info -->
-                      <VBox>
-                        <Text text="{vm>projectName}" wrapping="true" />
-                        <HBox alignItems="Center">
-                          <ObjectStatus text="{vm>wbsElement}" state="{= ${vm>isBillable} ? 'Success' : 'Information' }" />
-                          <Text text=" • {= ${vm>isBillable} ? 'Billable' : 'Internal' }" class="sapUiTinyMarginBegin" />
+                <!-- EMPLOYEE INFORMATION -->
+                <Panel id="_IDGenPanel" class="employeePanel" backgroundDesign="Transparent">
+                    <content>
+                        <HBox id="_IDGenHBox1" alignItems="Center" wrap="Wrap">
+                            <Avatar id="_IDGenAvatar1"
+                                initials="RS"
+                                displaySize="L"
+                                backgroundColor="Accent6"/>
+
+                            <VBox id="_IDGenVBox3" class="sapUiSmallMarginBegin employeeInfo">
+                                <Title id="_IDGenTitle2"
+                                    text="{vm>/employee/fullName}"
+                                    level="H4"/>
+                                <Text id="_IDGenText1"
+                                    text="{= ${vm>/employee/ID} + ' | ' + ${vm>/employee/role} }"
+                                    class="secondaryText"/>
+                                <Text id="_IDGenText2"
+                                    text="{= ${vm>/employee/location} + ' | Department: ' + ${vm>/employee/department} }"
+                                    class="secondaryText"/>
+                            </VBox>
+
+                            <ToolbarSpacer id="_IDGenToolbarSpacer1"/>
+
+                            <VBox id="_IDGenVBox4" class="employeeReference">
+                                <Label id="_IDGenLabel1" text="Timesheet Status"/>
+                                <ObjectStatus id="_IDGenObjectStatus3"
+                                    text="{vm>/header/status}"
+                                    state="{= ${vm>/header/status} === 'POSTED_CATS' || ${vm>/header/status} === 'APPROVED' ? 'Success' : (${vm>/header/status} === 'REJECTED' ? 'Error' : 'Warning') }"/>
+                            </VBox>
+
+                            <VBox id="_IDGenVBox5"
+                                class="employeeReference sapUiSmallMarginBegin"
+                                visible="{= !!${vm>/header/catsDocumentId} }">
+                                <Label id="_IDGenLabel2" text="CATS Document"/>
+                                <ObjectStatus id="_IDGenObjectStatus4"
+                                    text="{vm>/header/catsDocumentId}"
+                                    state="Success"/>
+                            </VBox>
                         </HBox>
-                      </VBox>
+                    </content>
+                </Panel>
 
-                      <!-- Task Category -->
-                      <Select
-                        selectedKey="{vm>taskCategory}"
-                        enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
-                        width="100%">
-                        <core:Item key="Development" text="Development" />
-                        <core:Item key="Testing" text="Testing" />
-                        <core:Item key="Architecture" text="Architecture" />
-                        <core:Item key="Meetings" text="Meetings" />
-                        <core:Item key="Support" text="Support" />
-                        <core:Item key="Admin" text="Admin" />
-                      </Select>
+                <!-- KPI CARDS -->
+                <Title id="_IDGenTitle3"
+                    text="Weekly Performance Overview"
+                    level="H4"
+                    class="sectionTitle"/>
 
-                      <!-- Monday Cell -->
-                      <VBox class="{= ${vm>days/0/isLeave} ? 'dayCellLeave' : (${vm>days/0/isHoliday} ? 'dayCellHoliday' : '') }">
-                        <Input
-                          type="Number"
-                          value="{vm>days/0/hours}"
-                          enabled="{vm>days/0/editable}"
-                          change=".onCellChanged"
-                          placeholder="0" />
-                        <Select
-                          selectedKey="{vm>days/0/workMode}"
-                          enabled="{vm>days/0/editable}"
-                          change=".onCellChanged"
-                          width="100%">
-                          <core:Item key="IN_OFFICE" text="Office" />
-                          <core:Item key="WFH" text="WFH" />
-                          <core:Item key="CLIENT_SITE" text="Client" />
-                          <core:Item key="ON_DUTY" text="On-Duty" />
-                        </Select>
-                      </VBox>
+                <l:Grid id="_IDGenGrid"
+                    defaultSpan="XL2 L2 M4 S6"
+                    hSpacing="1"
+                    vSpacing="1"
+                    class="kpiGrid">
 
-                      <!-- Tuesday Cell -->
-                      <VBox class="{= ${vm>days/1/isLeave} ? 'dayCellLeave' : (${vm>days/1/isHoliday} ? 'dayCellHoliday' : '') }">
-                        <Input
-                          type="Number"
-                          value="{vm>days/1/hours}"
-                          enabled="{vm>days/1/editable}"
-                          change=".onCellChanged"
-                          placeholder="0" />
-                        <Select
-                          selectedKey="{vm>days/1/workMode}"
-                          enabled="{vm>days/1/editable}"
-                          change=".onCellChanged"
-                          width="100%">
-                          <core:Item key="IN_OFFICE" text="Office" />
-                          <core:Item key="WFH" text="WFH" />
-                          <core:Item key="CLIENT_SITE" text="Client" />
-                          <core:Item key="ON_DUTY" text="On-Duty" />
-                        </Select>
-                      </VBox>
+                    <VBox id="_IDGenVBox6" class="kpiCard kpiBlue">
+                        <core:Icon id="_IDGenIcon1" src="sap-icon://history" class="kpiIcon"/>
+                        <Label id="_IDGenLabel3" text="Weekly Logged Hours"/>
+                        <ObjectNumber id="_IDGenObjectNumber"
+                            number="{vm>/header/totalHours}"
+                            unit="hrs"
+                            emphasized="true"/>
+                        <Text id="_IDGenText3" text="Weekly target: 40 hours"/>
+                    </VBox>
 
-                      <!-- Wednesday Cell -->
-                      <VBox class="{= ${vm>days/2/isLeave} ? 'dayCellLeave' : (${vm>days/2/isHoliday} ? 'dayCellHoliday' : '') }">
-                        <Input
-                          type="Number"
-                          value="{vm>days/2/hours}"
-                          enabled="{vm>days/2/editable}"
-                          change=".onCellChanged"
-                          placeholder="0" />
-                        <Select
-                          selectedKey="{vm>days/2/workMode}"
-                          enabled="{vm>days/2/editable}"
-                          change=".onCellChanged"
-                          width="100%">
-                          <core:Item key="IN_OFFICE" text="Office" />
-                          <core:Item key="WFH" text="WFH" />
-                          <core:Item key="CLIENT_SITE" text="Client" />
-                          <core:Item key="ON_DUTY" text="On-Duty" />
-                        </Select>
-                      </VBox>
+                    <VBox id="_IDGenVBox7" class="kpiCard kpiGreen">
+                        <core:Icon id="_IDGenIcon2" src="sap-icon://money-bills" class="kpiIcon"/>
+                        <Label id="_IDGenLabel4" text="Billable Hours"/>
+                        <ObjectNumber id="_IDGenObjectNumber1"
+                            number="{vm>/header/billableHours}"
+                            unit="hrs"
+                            state="Success"/>
+                        <Text id="_IDGenText4" text="Non-billable: {vm>/header/nonBillableHours} hrs"/>
+                    </VBox>
 
-                      <!-- Thursday Cell -->
-                      <VBox class="{= ${vm>days/3/isLeave} ? 'dayCellLeave' : (${vm>days/3/isHoliday} ? 'dayCellHoliday' : '') }">
-                        <Input
-                          type="Number"
-                          value="{vm>days/3/hours}"
-                          enabled="{vm>days/3/editable}"
-                          change=".onCellChanged"
-                          placeholder="0" />
-                        <Select
-                          selectedKey="{vm>days/3/workMode}"
-                          enabled="{vm>days/3/editable}"
-                          change=".onCellChanged"
-                          width="100%">
-                          <core:Item key="IN_OFFICE" text="Office" />
-                          <core:Item key="WFH" text="WFH" />
-                          <core:Item key="CLIENT_SITE" text="Client" />
-                          <core:Item key="ON_DUTY" text="On-Duty" />
-                        </Select>
-                      </VBox>
+                    <VBox id="_IDGenVBox8" class="kpiCard kpiOrange">
+                        <core:Icon id="_IDGenIcon3" src="sap-icon://alert" class="kpiIcon"/>
+                        <Label id="_IDGenLabel5" text="Overtime Hours"/>
+                        <ObjectNumber id="_IDGenObjectNumber2"
+                            number="{vm>/header/overtimeHours}"
+                            unit="hrs"
+                            state="{= ${vm>/header/overtimeHours} > 0 ? 'Warning' : 'None' }"/>
+                        <Text id="_IDGenText5" text="Remarks required for overtime"/>
+                    </VBox>
 
-                      <!-- Friday Cell (Locked automatically if Approved Leave or Holiday exists!) -->
-                      <VBox class="{= ${vm>days/4/isLeave} ? 'dayCellLeave' : (${vm>days/4/isHoliday} ? 'dayCellHoliday' : '') }">
-                        <Input
-                          type="Number"
-                          value="{vm>days/4/hours}"
-                          enabled="{vm>days/4/editable}"
-                          change=".onCellChanged"
-                          placeholder="{= ${vm>days/4/isLeave} ? 'LEAVE' : '0' }" />
-                        <Select
-                          selectedKey="{vm>days/4/workMode}"
-                          enabled="{vm>days/4/editable}"
-                          change=".onCellChanged"
-                          width="100%">
-                          <core:Item key="IN_OFFICE" text="Office" />
-                          <core:Item key="WFH" text="WFH" />
-                          <core:Item key="CLIENT_SITE" text="Client" />
-                          <core:Item key="ON_DUTY" text="On-Duty" />
-                        </Select>
-                      </VBox>
+                    <VBox id="_IDGenVBox9" class="kpiCard kpiPurple">
+                        <core:Icon id="_IDGenIcon4" src="sap-icon://building" class="kpiIcon"/>
+                        <Label id="_IDGenLabel6" text="Office Attendance"/>
+                        <ObjectNumber id="_IDGenObjectNumber3"
+                            number="{vm>/compliance/officeDaysLogged}"
+                            unit="days"
+                            state="{= ${vm>/compliance/officeDaysLogged} >= ${vm>/compliance/officeTargetDays} ? 'Success' : 'Warning' }"/>
+                        <Text id="_IDGenText6" text="Target: 3 days per week"/>
+                    </VBox>
 
-                      <!-- Weekend Locked Indicator -->
-                      <VBox class="dayCellWeekend" alignItems="Center" justifyContent="Center">
-                        <ObjectStatus text="Weekend" state="None" />
-                        <Text text="Locked" />
-                      </VBox>
+                    <VBox id="_IDGenVBox10" class="kpiCard kpiTeal">
+                        <core:Icon id="_IDGenIcon5" src="sap-icon://calendar" class="kpiIcon"/>
+                        <Label id="_IDGenLabel7" text="Privilege Leave"/>
+                        <ObjectNumber id="_IDGenObjectNumber4"
+                            number="{vm>/leaveBalance/privilegeLeave}"
+                            unit="days"
+                            state="Success"/>
+                        <Text id="_IDGenText7" text="CL: {vm>/leaveBalance/casualLeave} | SL: {vm>/leaveBalance/sickLeave}"/>
+                    </VBox>
 
-                      <!-- Remarks -->
-                      <Input
-                        value="{vm>remarks}"
-                        enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
-                        placeholder="Task / Overtime notes..." />
+                    <VBox id="_IDGenVBox11" class="kpiCard kpiRed">
+                        <core:Icon id="_IDGenIcon6" src="sap-icon://locked" class="kpiIcon"/>
+                        <Label id="_IDGenLabel8" text="Timesheet Lock"/>
+                        <ObjectStatus id="_IDGenObjectStatus5"
+                            text="{= ${vm>/compliance/isAutoLocked} ? 'LOCKED' : 'OPEN' }"
+                            state="{= ${vm>/compliance/isAutoLocked} ? 'Error' : 'Success' }"/>
+                        <Text id="_IDGenText8" text="Cutoff: Friday, 6 PM"/>
+                    </VBox>
+                </l:Grid>
 
-                      <!-- Row Total -->
-                      <ObjectNumber number="{vm>rowTotal}" unit="h" emphasized="true" />
-                    </cells>
-                  </ColumnListItem>
-                </items>
-              </Table>
-            </IconTabFilter>
+                <!-- REJECTION MESSAGE -->
+                <MessageStrip id="_IDGenMessageStrip"
+                    visible="{= ${vm>/header/status} === 'REJECTED' }"
+                    text="Timesheet rejected: {vm>/header/rejectionReason}. Please correct the entries and resubmit."
+                    type="Error"
+                    showIcon="true"
+                    showCloseButton="false"
+                    class="sapUiSmallMarginBottom"/>
 
-            <!-- =========================================================== -->
-            <!-- TAB 2: LEAVE MANAGEMENT & HOLIDAY SYNC (FR-02 & FR-04)      -->
-            <!-- =========================================================== -->
-            <IconTabFilter key="leaves" icon="sap-icon://flight" text="2. Leaves &amp; Holiday Calendar">
-              <Toolbar class="sapUiTinyMarginBottom">
-                <Title text="Employee Leave Requests (SAP SuccessFactors Sync)" level="H5" />
-                <ToolbarSpacer />
-                <Button
-                  text="Apply Leave (Auto-Locks Timesheet Dates)"
-                  icon="sap-icon://create-leave-request"
-                  type="Emphasized"
-                  press=".onOpenApplyLeaveDialog" />
-              </Toolbar>
+                <!-- MAIN NAVIGATION -->
+                <IconTabBar
+                    id="mainTabBar"
+                    expandable="false"
+                    select=".onTabSelect"
+                    class="mainTabBar">
 
-              <l:Grid defaultSpan="XL6 L6 M12 S12" hSpacing="1" vSpacing="1">
-                <!-- Employee Leaves Table -->
-                <Panel headerText="My Approved &amp; Applied Leaves" expandable="false">
-                  <Table items="{vm>/allEmployeeLeaves}">
-                    <columns>
-                      <Column><Text text="Leave Type" /></Column>
-                      <Column><Text text="From - To" /></Column>
-                      <Column hAlign="Center"><Text text="Days" /></Column>
-                      <Column><Text text="SF Ref ID" /></Column>
-                      <Column><Text text="Status" /></Column>
-                    </columns>
                     <items>
-                      <ColumnListItem>
-                        <cells>
-                          <VBox>
-                            <Text text="{vm>leaveType}" />
-                            <Text text="{vm>reason}" />
-                          </VBox>
-                          <Text text="{vm>startDate} to {vm>endDate}" />
-                          <ObjectNumber number="{vm>daysCount}" unit="d" />
-                          <ObjectStatus text="{vm>sfLeaveId}" state="Information" />
-                          <ObjectStatus text="{vm>status}" state="{= ${vm>status} === 'APPROVED' ? 'Success' : 'Warning' }" />
-                        </cells>
-                      </ColumnListItem>
+
+                        <!-- TAB 1: TIMESHEET -->
+                        <IconTabFilter id="_IDGenIconTabFilter"
+                            key="timesheet"
+                            icon="sap-icon://calendar"
+                            text="Timesheet">
+
+                            <VBox id="_IDGenVBox12" class="tabContent">
+
+                                <OverflowToolbar id="_IDGenOverflowToolbar" class="sectionToolbar">
+                                    <VBox id="_IDGenVBox13">
+                                        <Title id="_IDGenTitle4" text="Weekly Timesheet" level="H4"/>
+                                        <Text id="_IDGenText9" text="Enter and manage your daily project hours." class="secondaryText"/>
+                                    </VBox>
+
+                                    <ToolbarSpacer id="_IDGenToolbarSpacer2"/>
+
+                                    <Button id="_IDGenButton"
+                                        icon="sap-icon://navigation-left-arrow"
+                                        tooltip="Previous Week"
+                                        press=".onPrevWeek"/>
+
+                                    <Title id="_IDGenTitle5"
+                                        text="{vm>/weekLabel}"
+                                        level="H5"
+                                        class="weekTitle"/>
+
+                                    <Button id="_IDGenButton1"
+                                        icon="sap-icon://navigation-right-arrow"
+                                        tooltip="Next Week"
+                                        press=".onNextWeek"/>
+
+                                    <ToolbarSeparator id="_IDGenToolbarSeparator1"/>
+
+                                    <Button id="_IDGenButton2"
+                                        text="Copy Previous"
+                                        icon="sap-icon://copy"
+                                        type="Transparent"
+                                        enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
+                                        press=".onCopyPreviousWeek"/>
+
+                                    <Button id="_IDGenButton3"
+                                        text="Add Project"
+                                        icon="sap-icon://add"
+                                        type="Transparent"
+                                        enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
+                                        press=".onOpenAddRowDialog"/>
+
+                                    <Button id="_IDGenButton4"
+                                        text="Save Draft"
+                                        icon="sap-icon://save"
+                                        enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
+                                        press=".onSaveDraft"/>
+
+                                    <Button id="_IDGenButton5"
+                                        text="Submit"
+                                        icon="sap-icon://paper-plane"
+                                        type="Emphasized"
+                                        enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
+                                        press=".onSubmitTimesheet"/>
+                                </OverflowToolbar>
+
+                                <!-- DAILY STATUS -->
+                                <HBox id="_IDGenHBox2"
+                                    items="{vm>/daysMeta}"
+                                    wrap="Wrap"
+                                    class="dayStatusContainer">
+
+                                    <VBox id="_IDGenVBox14" class="dayStatusCard">
+                                        <HBox id="_IDGenHBox3" justifyContent="SpaceBetween">
+                                            <Label id="_IDGenLabel9"
+                                                text="{vm>dayName} ({vm>shortDate})"
+                                                design="Bold"/>
+                                            <ObjectStatus id="_IDGenObjectStatus6"
+                                                text="{vm>dayTypeLabel}"
+                                                state="{vm>dayState}"/>
+                                        </HBox>
+                                        <Text id="_IDGenText10" text="{vm>note}" wrapping="true"/>
+                                    </VBox>
+                                </HBox>
+
+                                <!-- TIMESHEET TABLE -->
+                                <Panel id="_IDGenPanel1"
+                                    headerText="Project Work Entries"
+                                    class="contentPanel">
+
+                                    <MessageStrip id="_IDGenMessageStrip1"
+                                        text="Enter daily hours and select the work location. Approved leave and holidays are automatically locked."
+                                        type="Information"
+                                        showIcon="true"
+                                        class="sapUiSmallMarginBottom"/>
+
+                                    <Table
+                                        id="weeklyGridTable"
+                                        items="{vm>/gridRows}"
+                                        mode="None"
+                                        growing="false"
+                                        sticky="ColumnHeaders"
+                                        class="professionalTable">
+
+                                        <columns>
+                                            <Column id="_IDGenColumn" width="210px">
+                                                <Text id="_IDGenText11" text="Project / WBS"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn1" width="125px">
+                                                <Text id="_IDGenText12" text="Task Category"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn2" width="105px" hAlign="Center">
+                                                <Text id="_IDGenText13" text="Monday"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn3" width="105px" hAlign="Center">
+                                                <Text id="_IDGenText14" text="Tuesday"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn4" width="105px" hAlign="Center">
+                                                <Text id="_IDGenText15" text="Wednesday"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn5" width="105px" hAlign="Center">
+                                                <Text id="_IDGenText16" text="Thursday"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn6" width="105px" hAlign="Center">
+                                                <Text id="_IDGenText17" text="Friday"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn7" width="85px" hAlign="Center">
+                                                <Text id="_IDGenText18" text="Weekend"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn8" width="165px">
+                                                <Text id="_IDGenText19" text="Work Remarks"/>
+                                            </Column>
+                                            <Column id="_IDGenColumn9" width="85px" hAlign="End">
+                                                <Text id="_IDGenText20" text="Total"/>
+                                            </Column>
+                                        </columns>
+
+                                        <items>
+                                            <ColumnListItem id="_IDGenColumnListItem" vAlign="Middle">
+                                                <cells>
+
+                                                    <VBox id="_IDGenVBox15">
+                                                        <Text id="_IDGenText21"
+                                                            text="{vm>projectName}"
+                                                            wrapping="true"/>
+                                                        <HBox id="_IDGenHBox4" alignItems="Center">
+                                                            <ObjectStatus id="_IDGenObjectStatus7"
+                                                                text="{vm>wbsElement}"
+                                                                state="{= ${vm>isBillable} ? 'Success' : 'Information' }"/>
+                                                            <Text id="_IDGenText22"
+                                                                text="{= ${vm>isBillable} ? 'Billable' : 'Internal' }"
+                                                                class="sapUiTinyMarginBegin"/>
+                                                        </HBox>
+                                                    </VBox>
+
+                                                    <Select id="_IDGenSelect"
+                                                        selectedKey="{vm>taskCategory}"
+                                                        enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
+                                                        width="100%">
+                                                        <core:Item id="_IDGenItem3" key="Development" text="Development"/>
+                                                        <core:Item id="_IDGenItem4" key="Testing" text="Testing"/>
+                                                        <core:Item id="_IDGenItem5" key="Architecture" text="Architecture"/>
+                                                        <core:Item id="_IDGenItem6" key="Meetings" text="Meetings"/>
+                                                        <core:Item id="_IDGenItem7" key="Support" text="Support"/>
+                                                        <core:Item id="_IDGenItem8" key="Admin" text="Admin"/>
+                                                    </Select>
+
+                                                    <!-- MONDAY -->
+                                                    <VBox id="_IDGenVBox16" class="{= ${vm>days/0/isLeave} ? 'dayCellLeave' : (${vm>days/0/isHoliday} ? 'dayCellHoliday' : 'dayCell') }">
+                                                        <Input id="_IDGenInput"
+                                                            type="Number"
+                                                            value="{vm>days/0/hours}"
+                                                            enabled="{vm>days/0/editable}"
+                                                            change=".onCellChanged"
+                                                            placeholder="0"/>
+                                                        <Select id="_IDGenSelect1"
+                                                            selectedKey="{vm>days/0/workMode}"
+                                                            enabled="{vm>days/0/editable}"
+                                                            change=".onCellChanged"
+                                                            width="100%">
+                                                            <core:Item id="_IDGenItem9" key="IN_OFFICE" text="Office"/>
+                                                            <core:Item id="_IDGenItem10" key="WFH" text="WFH"/>
+                                                            <core:Item id="_IDGenItem11" key="CLIENT_SITE" text="Client"/>
+                                                            <core:Item id="_IDGenItem12" key="ON_DUTY" text="On-Duty"/>
+                                                        </Select>
+                                                    </VBox>
+
+                                                    <!-- TUESDAY -->
+                                                    <VBox id="_IDGenVBox17" class="{= ${vm>days/1/isLeave} ? 'dayCellLeave' : (${vm>days/1/isHoliday} ? 'dayCellHoliday' : 'dayCell') }">
+                                                        <Input id="_IDGenInput1"
+                                                            type="Number"
+                                                            value="{vm>days/1/hours}"
+                                                            enabled="{vm>days/1/editable}"
+                                                            change=".onCellChanged"
+                                                            placeholder="0"/>
+                                                        <Select id="_IDGenSelect2"
+                                                            selectedKey="{vm>days/1/workMode}"
+                                                            enabled="{vm>days/1/editable}"
+                                                            change=".onCellChanged"
+                                                            width="100%">
+                                                            <core:Item id="_IDGenItem13" key="IN_OFFICE" text="Office"/>
+                                                            <core:Item id="_IDGenItem14" key="WFH" text="WFH"/>
+                                                            <core:Item id="_IDGenItem15" key="CLIENT_SITE" text="Client"/>
+                                                            <core:Item id="_IDGenItem16" key="ON_DUTY" text="On-Duty"/>
+                                                        </Select>
+                                                    </VBox>
+
+                                                    <!-- WEDNESDAY -->
+                                                    <VBox id="_IDGenVBox18" class="{= ${vm>days/2/isLeave} ? 'dayCellLeave' : (${vm>days/2/isHoliday} ? 'dayCellHoliday' : 'dayCell') }">
+                                                        <Input id="_IDGenInput2"
+                                                            type="Number"
+                                                            value="{vm>days/2/hours}"
+                                                            enabled="{vm>days/2/editable}"
+                                                            change=".onCellChanged"
+                                                            placeholder="0"/>
+                                                        <Select id="_IDGenSelect3"
+                                                            selectedKey="{vm>days/2/workMode}"
+                                                            enabled="{vm>days/2/editable}"
+                                                            change=".onCellChanged"
+                                                            width="100%">
+                                                            <core:Item id="_IDGenItem17" key="IN_OFFICE" text="Office"/>
+                                                            <core:Item id="_IDGenItem18" key="WFH" text="WFH"/>
+                                                            <core:Item id="_IDGenItem19" key="CLIENT_SITE" text="Client"/>
+                                                            <core:Item id="_IDGenItem20" key="ON_DUTY" text="On-Duty"/>
+                                                        </Select>
+                                                    </VBox>
+
+                                                    <!-- THURSDAY -->
+                                                    <VBox id="_IDGenVBox19" class="{= ${vm>days/3/isLeave} ? 'dayCellLeave' : (${vm>days/3/isHoliday} ? 'dayCellHoliday' : 'dayCell') }">
+                                                        <Input id="_IDGenInput3"
+                                                            type="Number"
+                                                            value="{vm>days/3/hours}"
+                                                            enabled="{vm>days/3/editable}"
+                                                            change=".onCellChanged"
+                                                            placeholder="0"/>
+                                                        <Select id="_IDGenSelect4"
+                                                            selectedKey="{vm>days/3/workMode}"
+                                                            enabled="{vm>days/3/editable}"
+                                                            change=".onCellChanged"
+                                                            width="100%">
+                                                            <core:Item id="_IDGenItem21" key="IN_OFFICE" text="Office"/>
+                                                            <core:Item id="_IDGenItem22" key="WFH" text="WFH"/>
+                                                            <core:Item id="_IDGenItem23" key="CLIENT_SITE" text="Client"/>
+                                                            <core:Item id="_IDGenItem24" key="ON_DUTY" text="On-Duty"/>
+                                                        </Select>
+                                                    </VBox>
+
+                                                    <!-- FRIDAY -->
+                                                    <VBox id="_IDGenVBox20" class="{= ${vm>days/4/isLeave} ? 'dayCellLeave' : (${vm>days/4/isHoliday} ? 'dayCellHoliday' : 'dayCell') }">
+                                                        <Input id="_IDGenInput4"
+                                                            type="Number"
+                                                            value="{vm>days/4/hours}"
+                                                            enabled="{vm>days/4/editable}"
+                                                            change=".onCellChanged"
+                                                            placeholder="{= ${vm>days/4/isLeave} ? 'LEAVE' : '0' }"/>
+                                                        <Select id="_IDGenSelect5"
+                                                            selectedKey="{vm>days/4/workMode}"
+                                                            enabled="{vm>days/4/editable}"
+                                                            change=".onCellChanged"
+                                                            width="100%">
+                                                            <core:Item id="_IDGenItem25" key="IN_OFFICE" text="Office"/>
+                                                            <core:Item id="_IDGenItem26" key="WFH" text="WFH"/>
+                                                            <core:Item id="_IDGenItem27" key="CLIENT_SITE" text="Client"/>
+                                                            <core:Item id="_IDGenItem28" key="ON_DUTY" text="On-Duty"/>
+                                                        </Select>
+                                                    </VBox>
+
+                                                    <!-- WEEKEND -->
+                                                    <VBox id="_IDGenVBox21"
+                                                        class="dayCellWeekend"
+                                                        alignItems="Center"
+                                                        justifyContent="Center">
+                                                        <ObjectStatus id="_IDGenObjectStatus8" text="Weekend" state="None"/>
+                                                        <Text id="_IDGenText23" text="Locked"/>
+                                                    </VBox>
+
+                                                    <Input id="_IDGenInput5"
+                                                        value="{vm>remarks}"
+                                                        enabled="{= !${vm>/compliance/isAutoLocked} &amp;&amp; (${vm>/header/status} === 'DRAFT' || ${vm>/header/status} === 'REJECTED') }"
+                                                        placeholder="Enter remarks"/>
+
+                                                    <ObjectNumber id="_IDGenObjectNumber5"
+                                                        number="{vm>rowTotal}"
+                                                        unit="hrs"
+                                                        emphasized="true"/>
+                                                </cells>
+                                            </ColumnListItem>
+                                        </items>
+                                    </Table>
+                                </Panel>
+                            </VBox>
+                        </IconTabFilter>
+
+                        <!-- TAB 2: LEAVE MANAGEMENT -->
+                        <IconTabFilter id="_IDGenIconTabFilter1"
+                            key="leaves"
+                            icon="sap-icon://flight"
+                            text="Leaves &amp; Holidays">
+
+                            <VBox id="_IDGenVBox22" class="tabContent">
+                                <OverflowToolbar id="_IDGenOverflowToolbar1" class="sectionToolbar">
+                                    <VBox id="_IDGenVBox23">
+                                        <Title id="_IDGenTitle6" text="Leave Management" level="H4"/>
+                                        <Text id="_IDGenText24" text="Manage leave applications and regional holidays." class="secondaryText"/>
+                                    </VBox>
+                                    <ToolbarSpacer id="_IDGenToolbarSpacer3"/>
+                                    <Button id="_IDGenButton6"
+                                        text="Apply Leave"
+                                        icon="sap-icon://create-leave-request"
+                                        type="Emphasized"
+                                        press=".onOpenApplyLeaveDialog"/>
+                                </OverflowToolbar>
+
+                                <l:Grid id="_IDGenGrid1"
+                                    defaultSpan="XL6 L6 M12 S12"
+                                    hSpacing="1"
+                                    vSpacing="1">
+
+                                    <Panel id="_IDGenPanel2"
+                                        headerText="My Approved &amp; Applied Leaves"
+                                        class="contentPanel">
+
+                                        <Table id="_IDGenTable" items="{vm>/allEmployeeLeaves}" class="professionalTable">
+                                            <columns>
+                                                <Column id="_IDGenColumn10"><Text id="_IDGenText25" text="Leave Type"/></Column>
+                                                <Column id="_IDGenColumn11"><Text id="_IDGenText26" text="Duration"/></Column>
+                                                <Column id="_IDGenColumn12" hAlign="Center"><Text id="_IDGenText27" text="Days"/></Column>
+                                                <Column id="_IDGenColumn13"><Text id="_IDGenText28" text="SF Reference"/></Column>
+                                                <Column id="_IDGenColumn14"><Text id="_IDGenText29" text="Status"/></Column>
+                                            </columns>
+                                            <items>
+                                                <ColumnListItem id="_IDGenColumnListItem1">
+                                                    <cells>
+                                                        <VBox id="_IDGenVBox24">
+                                                            <Text id="_IDGenText30" text="{vm>leaveType}"/>
+                                                            <Text id="_IDGenText31" text="{vm>reason}" class="secondaryText"/>
+                                                        </VBox>
+                                                        <Text id="_IDGenText32" text="{vm>startDate} to {vm>endDate}"/>
+                                                        <ObjectNumber id="_IDGenObjectNumber6" number="{vm>daysCount}" unit="days"/>
+                                                        <ObjectStatus id="_IDGenObjectStatus9" text="{vm>sfLeaveId}" state="Information"/>
+                                                        <ObjectStatus id="_IDGenObjectStatus10"
+                                                            text="{vm>status}"
+                                                            state="{= ${vm>status} === 'APPROVED' ? 'Success' : 'Warning' }"/>
+                                                    </cells>
+                                                </ColumnListItem>
+                                            </items>
+                                        </Table>
+                                    </Panel>
+
+                                    <Panel id="_IDGenPanel3"
+                                        headerText="Regional Holiday Calendar | Hyderabad"
+                                        class="contentPanel">
+
+                                        <Table id="_IDGenTable1" items="{vm>/allPublicHolidays}" class="professionalTable">
+                                            <columns>
+                                                <Column id="_IDGenColumn15"><Text id="_IDGenText33" text="Date"/></Column>
+                                                <Column id="_IDGenColumn16"><Text id="_IDGenText34" text="Holiday"/></Column>
+                                                <Column id="_IDGenColumn17"><Text id="_IDGenText35" text="Holiday Type"/></Column>
+                                            </columns>
+                                            <items>
+                                                <ColumnListItem id="_IDGenColumnListItem2">
+                                                    <cells>
+                                                        <Text id="_IDGenText36" text="{vm>holidayDate}"/>
+                                                        <Text id="_IDGenText37" text="{vm>name}"/>
+                                                        <ObjectStatus id="_IDGenObjectStatus11"
+                                                            text="{= ${vm>isOptional} ? 'Optional' : 'Mandatory' }"
+                                                            state="{= ${vm>isOptional} ? 'Warning' : 'Success' }"/>
+                                                    </cells>
+                                                </ColumnListItem>
+                                            </items>
+                                        </Table>
+                                    </Panel>
+                                </l:Grid>
+                            </VBox>
+                        </IconTabFilter>
+
+                        <!-- TAB 3: MANAGER APPROVALS -->
+                        <IconTabFilter id="_IDGenIconTabFilter2"
+                            key="approvals"
+                            icon="sap-icon://approvals"
+                            text="Approvals &amp; CATS">
+
+                            <VBox id="_IDGenVBox25" class="tabContent">
+                                <OverflowToolbar id="_IDGenOverflowToolbar2" class="sectionToolbar">
+                                    <VBox id="_IDGenVBox26">
+                                        <Title id="_IDGenTitle7" text="Manager Approval Center" level="H4"/>
+                                        <Text id="_IDGenText38" text="Review team submissions and manage CATS posting." class="secondaryText"/>
+                                    </VBox>
+                                    <ToolbarSpacer id="_IDGenToolbarSpacer4"/>
+
+                                    <Button id="_IDGenButton7"
+                                        text="Bulk Approve"
+                                        icon="sap-icon://accept"
+                                        type="Accept"
+                                        press=".onBulkApprove"/>
+
+                                    <Button id="_IDGenButton8"
+                                        text="Reject Selected"
+                                        icon="sap-icon://decline"
+                                        type="Reject"
+                                        press=".onOpenRejectDialog"/>
+
+                                    <Button id="_IDGenButton9"
+                                        text="HR Unlock"
+                                        icon="sap-icon://unlocked"
+                                        visible="{= ${vm>/selectedPersona} === 'HRAdmin' }"
+                                        press=".onHrUnlockSelected"/>
+                                </OverflowToolbar>
+
+                                <Panel id="_IDGenPanel4"
+                                    headerText="Team Timesheet Approval Queue"
+                                    class="contentPanel">
+
+                                    <Table
+                                        id="approvalTable"
+                                        mode="MultiSelect"
+                                        items="{vm>/teamSubmissions}"
+                                        class="professionalTable">
+
+                                        <columns>
+                                            <Column id="_IDGenColumn18"><Text id="_IDGenText39" text="Employee ID"/></Column>
+                                            <Column id="_IDGenColumn19"><Text id="_IDGenText40" text="Week Period"/></Column>
+                                            <Column id="_IDGenColumn20" hAlign="End"><Text id="_IDGenText41" text="Total Hours"/></Column>
+                                            <Column id="_IDGenColumn21" hAlign="End"><Text id="_IDGenText42" text="Billable Hours"/></Column>
+                                            <Column id="_IDGenColumn22" hAlign="Center"><Text id="_IDGenText43" text="Office Days"/></Column>
+                                            <Column id="_IDGenColumn23"><Text id="_IDGenText44" text="Workflow Status"/></Column>
+                                            <Column id="_IDGenColumn24"><Text id="_IDGenText45" text="CATS Document"/></Column>
+                                        </columns>
+
+                                        <items>
+                                            <ColumnListItem id="_IDGenColumnListItem3">
+                                                <cells>
+                                                    <Text id="_IDGenText46" text="{vm>employee_ID}"/>
+                                                    <Text id="_IDGenText47" text="{vm>weekStartDate} to {vm>weekEndDate}"/>
+                                                    <ObjectNumber id="_IDGenObjectNumber7" number="{vm>totalHours}" unit="hrs"/>
+                                                    <ObjectNumber id="_IDGenObjectNumber8" number="{vm>billableHours}" unit="hrs" state="Success"/>
+                                                    <ObjectStatus id="_IDGenObjectStatus12"
+                                                        text="{vm>officeDaysCount} / 3 days"
+                                                        state="{= ${vm>officeDaysCount} >= 3 ? 'Success' : 'Warning' }"/>
+                                                    <ObjectStatus id="_IDGenObjectStatus13"
+                                                        text="{vm>status}"
+                                                        state="{= ${vm>status} === 'POSTED_CATS' ? 'Success' : (${vm>status} === 'SUBMITTED' ? 'Warning' : (${vm>status} === 'REJECTED' ? 'Error' : 'Information')) }"/>
+                                                    <Text id="_IDGenText48" text="{= ${vm>catsDocumentId} || 'Pending Approval' }"/>
+                                                </cells>
+                                            </ColumnListItem>
+                                        </items>
+                                    </Table>
+                                </Panel>
+                            </VBox>
+                        </IconTabFilter>
+
+                        <!-- TAB 4: ANALYTICS -->
+                        <IconTabFilter id="_IDGenIconTabFilter3"
+                            key="analytics"
+                            icon="sap-icon://business-objects-experience"
+                            text="Analytics &amp; Audit">
+
+                            <VBox id="_IDGenVBox27" class="tabContent">
+                                <Title id="_IDGenTitle8" text="Workforce Analytics" level="H4"/>
+                                <Text id="_IDGenText49"
+                                    text="Monitor employee utilization, attendance and compliance."
+                                    class="secondaryText sapUiSmallMarginBottom"/>
+
+                                <l:Grid id="_IDGenGrid2"
+                                    defaultSpan="XL6 L6 M12 S12"
+                                    hSpacing="1"
+                                    vSpacing="1">
+
+                                    <!-- DONUT CHART -->
+                                    <Panel id="_IDGenPanel5"
+                                        headerText="Billable vs Non-Billable Utilization"
+                                        class="contentPanel">
+
+                                        <viz:VizFrame
+                                            id="utilizationChart"
+                                            uiConfig="{applicationSet:'fiori'}"
+                                            vizType="donut"
+                                            height="320px"
+                                            width="100%">
+
+                                            <viz:dataset>
+                                                <viz.data:FlattenedDataset id="_IDGenFlattenedDataset"
+                                                    data="{vm>/managerAnalytics/utilizationBreakdown}">
+
+                                                    <viz.data:dimensions>
+                                                        <viz.data:DimensionDefinition id="_IDGenDimensionDefinition"
+                                                            name="Category"
+                                                            value="{vm>category}"/>
+                                                    </viz.data:dimensions>
+
+                                                    <viz.data:measures>
+                                                        <viz.data:MeasureDefinition id="_IDGenMeasureDefinition"
+                                                            name="Hours"
+                                                            value="{vm>hours}"/>
+                                                    </viz.data:measures>
+                                                </viz.data:FlattenedDataset>
+                                            </viz:dataset>
+
+                                            <viz:feeds>
+                                                <viz.feeds:FeedItem id="_IDGenFeedItem"
+                                                    uid="size"
+                                                    type="Measure"
+                                                    values="Hours"/>
+                                                <viz.feeds:FeedItem id="_IDGenFeedItem1"
+                                                    uid="color"
+                                                    type="Dimension"
+                                                    values="Category"/>
+                                            </viz:feeds>
+                                        </viz:VizFrame>
+                                    </Panel>
+
+                                    <!-- OFFICE COMPLIANCE -->
+                                    <Panel id="_IDGenPanel6"
+                                        headerText="Office Attendance Compliance"
+                                        class="contentPanel">
+
+                                        <Table id="_IDGenTable2" items="{vm>/managerAnalytics/officeCompliance}">
+                                            <columns>
+                                                <Column id="_IDGenColumn25"><Text id="_IDGenText50" text="Employee"/></Column>
+                                                <Column id="_IDGenColumn26" hAlign="Center"><Text id="_IDGenText51" text="Office Days"/></Column>
+                                                <Column id="_IDGenColumn27"><Text id="_IDGenText52" text="Compliance"/></Column>
+                                            </columns>
+                                            <items>
+                                                <ColumnListItem id="_IDGenColumnListItem4">
+                                                    <cells>
+                                                        <Text id="_IDGenText53" text="{vm>employeeName}"/>
+                                                        <Text id="_IDGenText54" text="{vm>officeDays} / {vm>targetDays}"/>
+                                                        <ObjectStatus id="_IDGenObjectStatus14"
+                                                            text="{vm>status}"
+                                                            state="{= ${vm>status} === 'Compliant' ? 'Success' : 'Warning' }"/>
+                                                    </cells>
+                                                </ColumnListItem>
+                                            </items>
+                                        </Table>
+                                    </Panel>
+
+                                    <!-- DEFAULTER LIST -->
+                                    <Panel id="_IDGenPanel7"
+                                        headerText="Timesheet Follow-up | Current Week"
+                                        class="contentPanel">
+
+                                        <Table id="_IDGenTable3" items="{vm>/managerAnalytics/defaulterList}">
+                                            <columns>
+                                                <Column id="_IDGenColumn28"><Text id="_IDGenText55" text="Employee"/></Column>
+                                                <Column id="_IDGenColumn29"><Text id="_IDGenText56" text="Department"/></Column>
+                                                <Column id="_IDGenColumn30"><Text id="_IDGenText57" text="Status"/></Column>
+                                            </columns>
+                                            <items>
+                                                <ColumnListItem id="_IDGenColumnListItem5">
+                                                    <cells>
+                                                        <Text id="_IDGenText58" text="{vm>employeeName} ({vm>employeeId})"/>
+                                                        <Text id="_IDGenText59" text="{vm>department}"/>
+                                                        <ObjectStatus id="_IDGenObjectStatus15" text="{vm>status}" state="Error"/>
+                                                    </cells>
+                                                </ColumnListItem>
+                                            </items>
+                                        </Table>
+                                    </Panel>
+                                </l:Grid>
+
+
+                                    <!-- ALL EMPLOYEE WORK STATUS -->
+                                    <Panel id="employeeWorkStatusPanel"
+                                        headerText="All Employee Work Status | Live Backend Data"
+                                        class="contentPanel">
+                                        <Table id="employeeWorkStatusTable"
+                                            items="{vm>/managerAnalytics/employeeWorkStatus}"
+                                            class="professionalTable"
+                                            growing="true"
+                                            growingThreshold="20">
+                                            <columns>
+                                                <Column id="_IDGenColumn35" width="190px"><Text id="_IDGenText67" text="Employee"/></Column>
+                                                <Column id="_IDGenColumn36" width="170px"><Text id="_IDGenText68" text="Department"/></Column>
+                                                <Column id="_IDGenColumn37"><Text id="_IDGenText69" text="Assigned Projects"/></Column>
+                                                <Column id="_IDGenColumn38" hAlign="End" width="100px"><Text id="_IDGenText70" text="Hours"/></Column>
+                                                <Column id="_IDGenColumn39" hAlign="Center" width="115px"><Text id="_IDGenText71" text="Office Days"/></Column>
+                                                <Column id="_IDGenColumn40" width="155px"><Text id="_IDGenText72" text="Work Status"/></Column>
+                                            </columns>
+                                            <items>
+                                                <ColumnListItem id="_IDGenColumnListItem7">
+                                                    <cells>
+                                                        <VBox id="_IDGenVBox28">
+                                                            <Text id="_IDGenText73" text="{vm>employeeName}" wrapping="true"/>
+                                                            <Text id="_IDGenText74" text="{vm>employeeId}" class="secondaryText"/>
+                                                        </VBox>
+                                                        <Text id="_IDGenText75" text="{vm>department}" wrapping="true"/>
+                                                        <Text id="_IDGenText76" text="{vm>projectNames}" wrapping="true"/>
+                                                        <ObjectNumber id="_IDGenObjectNumber9" number="{vm>weeklyHours}" unit="hrs"/>
+                                                        <ObjectStatus id="_IDGenObjectStatus17"
+                                                            text="{= ${vm>officeDays} + ' / ' + ${vm>targetDays} }"
+                                                            state="{= ${vm>officeDays} >= ${vm>targetDays} ? 'Success' : 'Warning' }"/>
+                                                        <ObjectStatus id="_IDGenObjectStatus18"
+                                                            text="{vm>workStatus}"
+                                                            state="{= ${vm>status} === 'POSTED_CATS' || ${vm>status} === 'APPROVED' ? 'Success' : (${vm>status} === 'SUBMITTED' ? 'Information' : (${vm>status} === 'REJECTED' ? 'Error' : 'Warning')) }"/>
+                                                    </cells>
+                                                </ColumnListItem>
+                                            </items>
+                                        </Table>
+                                    </Panel>
+
+                                <!-- AUDIT TRAIL -->
+                                <Panel id="_IDGenPanel8"
+                                    headerText="SAP HANA Cloud | Compliance Audit Trail"
+                                    expandable="true"
+                                    expanded="true"
+                                    class="contentPanel sapUiSmallMarginTop">
+
+                                    <Table id="_IDGenTable4"
+                                        items="{vm>/auditLogs}"
+                                        class="professionalTable">
+
+                                        <columns>
+                                            <Column id="_IDGenColumn31" width="180px"><Text id="_IDGenText60" text="Timestamp"/></Column>
+                                            <Column id="_IDGenColumn32" width="140px"><Text id="_IDGenText61" text="Action"/></Column>
+                                            <Column id="_IDGenColumn33" width="180px"><Text id="_IDGenText62" text="Performed By"/></Column>
+                                            <Column id="_IDGenColumn34"><Text id="_IDGenText63" text="Audit Details"/></Column>
+                                        </columns>
+
+                                        <items>
+                                            <ColumnListItem id="_IDGenColumnListItem6">
+                                                <cells>
+                                                    <Text id="_IDGenText64" text="{vm>performedAt}"/>
+                                                    <ObjectStatus id="_IDGenObjectStatus16" text="{vm>action}" state="Information"/>
+                                                    <Text id="_IDGenText65" text="{vm>performedBy}"/>
+                                                    <Text id="_IDGenText66" text="{vm>details}"/>
+                                                </cells>
+                                            </ColumnListItem>
+                                        </items>
+                                    </Table>
+                                </Panel>
+                            </VBox>
+                        </IconTabFilter>
+
                     </items>
-                  </Table>
-                </Panel>
-
-                <!-- Regional Public Holidays Table -->
-                <Panel headerText="Regional Holiday Calendar (India / Hyderabad - IN-TG)" expandable="false">
-                  <Table items="{vm>/allPublicHolidays}">
-                    <columns>
-                      <Column><Text text="Date" /></Column>
-                      <Column><Text text="Holiday Name" /></Column>
-                      <Column><Text text="Type" /></Column>
-                    </columns>
-                    <items>
-                      <ColumnListItem>
-                        <cells>
-                          <Text text="{vm>holidayDate}" />
-                          <Text text="{vm>name}" />
-                          <ObjectStatus
-                            text="{= ${vm>isOptional} ? 'Optional Holiday' : 'Mandatory Holiday (Locked)' }"
-                            state="{= ${vm>isOptional} ? 'Warning' : 'Success' }" />
-                        </cells>
-                      </ColumnListItem>
-                    </items>
-                  </Table>
-                </Panel>
-              </l:Grid>
-            </IconTabFilter>
-
-            <!-- =========================================================== -->
-            <!-- TAB 3: MANAGER APPROVALS & S/4HANA CATS POSTING (FR-03/04)  -->
-            <!-- =========================================================== -->
-            <IconTabFilter key="approvals" icon="sap-icon://approvals" text="3. Manager Approvals &amp; CATS">
-              <Toolbar class="sapUiTinyMarginBottom">
-                <Title text="Team Timesheet Approval Queue (SAP Build Process Automation)" level="H5" />
-                <ToolbarSpacer />
-                <Button
-                  text="Bulk Approve &amp; Post to S/4HANA CATS"
-                  icon="sap-icon://accept"
-                  type="Accept"
-                  press=".onBulkApprove" />
-                <Button
-                  text="Reject Selected"
-                  icon="sap-icon://decline"
-                  type="Reject"
-                  press=".onOpenRejectDialog" />
-                <Button
-                  text="HR Unlock Period"
-                  icon="sap-icon://unlocked"
-                  type="Default"
-                  visible="{= ${vm>/selectedPersona} === 'HRAdmin' }"
-                  press=".onHrUnlockSelected" />
-              </Toolbar>
-
-              <Table
-                id="approvalTable"
-                mode="MultiSelect"
-                items="{vm>/teamSubmissions}">
-                <columns>
-                  <Column><Text text="Employee ID" /></Column>
-                  <Column><Text text="Week Window" /></Column>
-                  <Column hAlign="End"><Text text="Total Hrs" /></Column>
-                  <Column hAlign="End"><Text text="Billable Hrs" /></Column>
-                  <Column hAlign="Center"><Text text="Office Days" /></Column>
-                  <Column><Text text="Workflow Status" /></Column>
-                  <Column><Text text="S/4HANA CATS Doc" /></Column>
-                </columns>
-                <items>
-                  <ColumnListItem>
-                    <cells>
-                      <Text text="{vm>employee_ID}" />
-                      <Text text="{vm>weekStartDate} to {vm>weekEndDate}" />
-                      <ObjectNumber number="{vm>totalHours}" unit="h" emphasized="true" />
-                      <ObjectNumber number="{vm>billableHours}" unit="h" state="Success" />
-                      <ObjectStatus
-                        text="{vm>officeDaysCount} / 3 days"
-                        state="{= ${vm>officeDaysCount} >= 3 ? 'Success' : 'Warning' }" />
-                      <ObjectStatus
-                        text="{vm>status}"
-                        state="{= ${vm>status} === 'POSTED_CATS' ? 'Success' : (${vm>status} === 'SUBMITTED' ? 'Warning' : (${vm>status} === 'REJECTED' ? 'Error' : 'Information')) }" />
-                      <Text text="{= ${vm>catsDocumentId} || 'Pending Approval' }" />
-                    </cells>
-                  </ColumnListItem>
-                </items>
-              </Table>
-            </IconTabFilter>
-
-            <!-- =========================================================== -->
-            <!-- TAB 4: ANALYTICS, COMPLIANCE & AUDIT TRAIL (FR-05 & NFR)    -->
-            <!-- =========================================================== -->
-            <IconTabFilter key="analytics" icon="sap-icon://business-objects-experience" text="4. Analytics &amp; Audit">
-              <l:Grid defaultSpan="XL6 L6 M12 S12" hSpacing="1" vSpacing="1">
-                <!-- VizFrame Donut Chart: Billable vs Non-Billable Utilization -->
-                <Panel headerText="Billable vs. Non-Billable &amp; Overtime Utilization" expandable="false">
-                  <viz:VizFrame
-                    id="utilizationChart"
-                    uiConfig="{applicationSet:'fiori'}"
-                    height="280px"
-                    width="100%"
-                    vizType="donut">
-                    <viz:dataset>
-                      <viz.data:FlattenedDataset data="{vm>/managerAnalytics/utilizationBreakdown}">
-                        <viz.data:dimensions>
-                          <viz.data:DimensionDefinition name="Category" value="{vm>category}" />
-                        </viz.data:dimensions>
-                        <viz.data:measures>
-                          <viz.data:MeasureDefinition name="Hours" value="{vm>hours}" />
-                        </viz.data:measures>
-                      </viz.data:FlattenedDataset>
-                    </viz:dataset>
-                    <viz:feeds>
-                      <viz.feeds:FeedItem uid="size" type="Measure" values="Hours" />
-                      <viz.feeds:FeedItem uid="color" type="Dimension" values="Category" />
-                    </viz:feeds>
-                  </viz:VizFrame>
-                </Panel>
-
-                <!-- Office Attendance Compliance & Defaulter List -->
-                <VBox>
-                  <Panel headerText="Office Attendance Compliance (3-Day Hybrid Policy)" expandable="false" class="sapUiTinyMarginBottom">
-                    <Table items="{vm>/managerAnalytics/officeCompliance}">
-                      <columns>
-                        <Column><Text text="Employee" /></Column>
-                        <Column hAlign="Center"><Text text="Office Days" /></Column>
-                        <Column><Text text="Compliance Status" /></Column>
-                      </columns>
-                      <items>
-                        <ColumnListItem>
-                          <cells>
-                            <Text text="{vm>employeeName}" />
-                            <Text text="{vm>officeDays} / {vm>targetDays}" />
-                            <ObjectStatus
-                              text="{vm>status}"
-                              state="{= ${vm>status} === 'Compliant' ? 'Success' : 'Warning' }" />
-                          </cells>
-                        </ColumnListItem>
-                      </items>
-                    </Table>
-                  </Panel>
-
-                  <Panel headerText="Unsubmitted / Defaulter List (Week 16 Nov 2026)" expandable="false">
-                    <Table items="{vm>/managerAnalytics/defaulterList}">
-                      <columns>
-                        <Column><Text text="Employee" /></Column>
-                        <Column><Text text="Department" /></Column>
-                        <Column><Text text="Current Status" /></Column>
-                      </columns>
-                      <items>
-                        <ColumnListItem>
-                          <cells>
-                            <Text text="{vm>employeeName} ({vm>employeeId})" />
-                            <Text text="{vm>department}" />
-                            <ObjectStatus text="{vm>status}" state="Error" />
-                          </cells>
-                        </ColumnListItem>
-                      </items>
-                    </Table>
-                  </Panel>
-                </VBox>
-              </l:Grid>
-
-              <!-- SAP HANA Cloud Immutable Audit Trail -->
-              <Panel headerText="SAP HANA Cloud Compliance Audit Trail" expandable="true" expanded="true" class="sapUiSmallMarginTop">
-                <Table items="{vm>/auditLogs}">
-                  <columns>
-                    <Column width="180px"><Text text="Timestamp" /></Column>
-                    <Column width="140px"><Text text="Action" /></Column>
-                    <Column width="180px"><Text text="Performed By" /></Column>
-                    <Column><Text text="Audit Details" /></Column>
-                  </columns>
-                  <items>
-                    <ColumnListItem>
-                      <cells>
-                        <Text text="{vm>performedAt}" />
-                        <ObjectStatus text="{vm>action}" state="Information" />
-                        <Text text="{vm>performedBy}" />
-                        <Text text="{vm>details}" />
-                      </cells>
-                    </ColumnListItem>
-                  </items>
-                </Table>
-              </Panel>
-            </IconTabFilter>
-          </items>
-        </IconTabBar>
-      </VBox>
-    </content>
-  </Page>
+                </IconTabBar>
+            </VBox>
+        </content>
+    </Page>
 </mvc:View>
