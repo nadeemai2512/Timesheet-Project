@@ -1,0 +1,60 @@
+{
+  "xsappname": "sap-btp-timesheet-app",
+  "tenant-mode": "dedicated",
+  "description": "Security profile of Unified Timesheet Application on SAP BTP",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Employee",
+      "description": "Log daily/weekly work hours, mark work mode, and submit timesheets"
+    },
+    {
+      "name": "$XSAPPNAME.ProjectManager",
+      "description": "Review team timesheets, approve/reject entries, monitor project burn"
+    },
+    {
+      "name": "$XSAPPNAME.HRAdmin",
+      "description": "Monitor compliance, unlock locked periods, trigger CATS/Payroll posting"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "EmployeeID",
+      "description": "SAP SuccessFactors / S4HANA Employee Personnel Number",
+      "valueType": "string"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Employee",
+      "description": "Consultant / Staff Role",
+      "scope-references": [
+        "$XSAPPNAME.Employee"
+      ],
+      "attribute-references": [
+        "EmployeeID"
+      ]
+    },
+    {
+      "name": "ProjectManager",
+      "description": "Project Manager / Team Lead Role",
+      "scope-references": [
+        "$XSAPPNAME.Employee",
+        "$XSAPPNAME.ProjectManager"
+      ],
+      "attribute-references": [
+        "EmployeeID"
+      ]
+    },
+    {
+      "name": "HRAdmin",
+      "description": "HR / Payroll Administrator Role",
+      "scope-references": [
+        "$XSAPPNAME.Employee",
+        "$XSAPPNAME.HRAdmin"
+      ],
+      "attribute-references": [
+        "EmployeeID"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "name": "sap-btp-timesheet-app",
+  "version": "1.0.0",
+  "description": "Unified SAPUI5 & SAP CAP Timesheet Management Application on SAP BTP",
+  "repository": "https://github.com/enterprise/sap-btp-timesheet-app",
+  "license": "Apache-2.0",
+  "private": true,
+  "workspaces": [
+    "app/*"
+  ],
+  "dependencies": {
+    "@sap/cds": "^8.0.0",
+    "express": "^4.19.2",
+    "@sap/xssec": "^3.6.0",
+    "passport": "^0.7.0",
+    "@sap-cloud-sdk/http-client": "^3.16.0",
+    "@sap-cloud-sdk/connectivity": "^3.16.0"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^1.7.0",
+    "@sap/cds-dk": "^8.0.0",
+    "@ui5/cli": "^3.11.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "build": "cds build --production",
+    "deploy": "cds deploy --to hana"
+  },
+  "cds": {
+    "requires": {
+      "[development]": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": "db/timesheet.db"
+          }
+        },
+        "auth": {
+          "kind": "mocked",
+          "users": {
+            "emp.ravi@company.com": {
+              "password": "pass",
+              "roles": ["Employee"],
+              "attr": { "EmployeeID": "EMP1001" }
+            },
+            "mgr.ananya@company.com": {
+              "password": "pass",
+              "roles": ["Employee", "ProjectManager"],
+              "attr": { "EmployeeID": "EMP2001" }
+            },
+            "hr.vikram@company.com": {
+              "password": "pass",
+              "roles": ["Employee", "HRAdmin"],
+              "attr": { "EmployeeID": "EMP3001" }
+            }
+          }
+        }
+      },
+      "[production]": {
+        "db": {
+          "kind": "hana"
+        },
+        "auth": {
+          "kind": "xsuaa"
+        },
+        "API_ENTERPRISE_PROJECT_SRV": {
+          "kind": "odata",
+          "credentials": {
+            "destination": "S4HANA_CLOUD_CONNECTOR",
+            "path": "/sap/opu/odata/sap/API_ENTERPRISE_PROJECT_SRV"
+          }
+        },
+        "API_MANAGE_WORKFORCE_TIMESHEET": {
+          "kind": "odata",
+          "credentials": {
+            "destination": "S4HANA_CLOUD_CONNECTOR",
+            "path": "/sap/opu/odata/sap/API_MANAGE_WORKFORCE_TIMESHEET"
+          }
+        },
+        "SF_EMPLOYEE_CENTRAL": {
+          "kind": "odata",
+          "credentials": {
+            "destination": "SUCCESSFACTORS_API",
+            "path": "/odata/v2"
+          }
+        },
+        "BPA_WORKFLOW_API": {
+          "kind": "rest",
+          "credentials": {
+            "destination": "SAP_BUILD_PROCESS_AUTOMATION"
+          }
+        }
+      }
+    }
+  }
+}

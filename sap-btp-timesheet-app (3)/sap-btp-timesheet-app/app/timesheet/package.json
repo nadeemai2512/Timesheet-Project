@@ -1,0 +1,14 @@
+{
+  "name": "com.company.timesheet",
+  "version": "1.0.0",
+  "description": "SAPUI5 Unified Timesheet & Leave Management Frontend",
+  "private": true,
+  "scripts": {
+    "start": "ui5 serve -o index.html",
+    "build": "ui5 build --clean-dest",
+    "build:cf": "ui5 build preload --clean-dest --config ui5-deploy.yaml --include-task=generateCachebusterInfo"
+  },
+  "devDependencies": {
+    "@ui5/cli": "^3.11.0"
+  }
+}
