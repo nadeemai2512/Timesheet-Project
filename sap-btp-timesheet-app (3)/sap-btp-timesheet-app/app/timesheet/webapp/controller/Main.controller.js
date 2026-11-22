@@ -36,8 +36,17 @@ sap.ui.define([
   return Controller.extend("com.company.timesheet.controller.Main", {
 
     onInit: function () {
-      // Initial week label before the first grid load resolves it
-      const oVm = this.getView().getModel("vm");
+      // The vm JSONModel is created in Component.init. With async routing
+      // (data-sap-ui-async="true") the router can create this view during
+      // UIComponent.prototype.init, BEFORE Component.init reaches
+      // setModel("vm") — so model propagation to the view hasn't happened yet
+      // and getView().getModel("vm") returns undefined. Guard against that by
+      // pulling the model from the owner component and attaching it to the view.
+      let oVm = this.getView().getModel("vm");
+      if (!oVm) {
+        oVm = this.getOwnerComponent() && this.getOwnerComponent().getModel("vm");
+        if (oVm) { this.getView().setModel(oVm, "vm"); }
+      }
       const sWeekStart = oVm.getProperty("/weekStartDate");
       oVm.setProperty("/weekLabel", this._formatWeekLabel(sWeekStart));
 
